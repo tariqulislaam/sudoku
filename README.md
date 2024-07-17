@@ -26,7 +26,7 @@ You can play the live demo [here](https://tariqulislaam.github.io/sudoku/).
 
 ## Update
 
-- Keyboard Added
+- Keyboard Added.
 - Fixed some bugs and issues.
 - Added more bugs to fix later.
 
