@@ -1,3 +1,4 @@
+<!-- code by Tariqul Islam -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,11 +47,36 @@
             transition: all 0.3s ease;
             border-radius: 5px;
             color: #333;
+            border: 1px solid #ccc;
         }
 
         .cell:hover {
             background-color: #fff;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .cell.entered {
+            color: #2ecc71;
+        }
+
+        .cell:nth-child(3n) {
+            border-right: 2px solid #333;
+        }
+
+        .cell:nth-child(9n) {
+            border-right: none;
+        }
+
+        .cell:nth-of-type(n+19):nth-of-type(-n+27),
+        .cell:nth-of-type(n+46):nth-of-type(-n+54),
+        .cell:nth-of-type(n+73):nth-of-type(-n+81) {
+            border-bottom: 2px solid #333;
+        }
+
+        .cell:nth-of-type(n+55):nth-of-type(-n+63),
+        .cell:nth-of-type(n+64):nth-of-type(-n+72),
+        .cell:nth-of-type(n+73):nth-of-type(-n+81) {
+            border-bottom: none;
         }
 
         .controls {
@@ -86,8 +112,6 @@
             color: white;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
@@ -97,26 +121,26 @@
             box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
         }
 
-        .new-game-btn::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                to bottom right,
-                rgba(255, 255, 255, 0) 0%,
-                rgba(255, 255, 255, 0.1) 50%,
-                rgba(255, 255, 255, 0) 100%
-            );
-            transform: rotate(45deg);
-            animation: shine 3s infinite;
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
         }
 
-        @keyframes shine {
-            0% { transform: translateX(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) rotate(45deg); }
+        .key {
+            padding: 10px;
+            font-size: 18px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .key:hover {
+            background-color: rgba(255, 255, 255, 0.3);
         }
 
         .credit {
@@ -139,56 +163,71 @@
             </div>
             <button class="new-game-btn">New Game</button>
         </div>
+        <div class="keyboard">
+            <button class="key">1</button>
+            <button class="key">2</button>
+            <button class="key">3</button>
+            <button class="key">4</button>
+            <button class="key">5</button>
+            <button class="key">6</button>
+            <button class="key">7</button>
+            <button class="key">8</button>
+            <button class="key">9</button>
+        </div>
     </div>
     <div class="credit"><a href="https://www.facebook.com/tariqulislaamrahat/" style="color: rgb(255, 255, 255); text-decoration: none;">Created by Tariqul Islam</a></div>
 
-   <script>
+    <script>
     document.addEventListener('DOMContentLoaded', () => {
         const board = document.getElementById('sudoku-board');
         const newGameBtn = document.querySelector('.new-game-btn');
         const easyBtn = document.querySelector('.difficulty.easy');
         const mediumBtn = document.querySelector('.difficulty.medium');
         const hardBtn = document.querySelector('.difficulty.hard');
+        const keys = document.querySelectorAll('.key');
 
-        let currentDifficulty = 0.6; // Default to medium
+        let currentDifficulty = 0.6; 
+        let sudokuArray = [];
+        let selectedCell = null;
 
         function createBoard() {
             board.innerHTML = '';
-            for (let i = 0; i < 81; i++) {
-                const cell = document.createElement('div');
-                cell.classList.add('cell');
-                cell.dataset.index = i;
-                board.appendChild(cell);
-                
-                cell.addEventListener('click', () => {
-                    if (!cell.style.fontWeight) {
-                        cell.textContent = (parseInt(cell.textContent) || 0) % 9 + 1;
-                        cell.style.transform = 'scale(1.1)';
-                        setTimeout(() => cell.style.transform = 'scale(1)', 200);
-                    }
-                });
+            for (let i = 0; i < 9; i++) {
+                for (let j = 0; j < 9; j++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    board.appendChild(cell);
+                    
+                    cell.addEventListener('click', () => {
+                        if (selectedCell) {
+                            selectedCell.style.backgroundColor = '';
+                        }
+                        selectedCell = cell;
+                        cell.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
+                    });
+                }
             }
         }
 
         function generateSudoku() {
-            const sudoku = Array(81).fill(0);
+            sudokuArray = Array(9).fill().map(() => Array(9).fill(0));
             const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-            function isValid(num, pos) {
-                const row = Math.floor(pos / 9);
-                const col = pos % 9;
-                const boxRow = Math.floor(row / 3) * 3;
-                const boxCol = Math.floor(col / 3) * 3;
-
+            function isValid(num, row, col) {
                 for (let i = 0; i < 9; i++) {
-                    if (sudoku[row * 9 + i] === num || sudoku[i * 9 + col] === num) {
+                    if (sudokuArray[row][i] === num || sudokuArray[i][col] === num) {
                         return false;
                     }
                 }
 
+                const boxRow = Math.floor(row / 3) * 3;
+                const boxCol = Math.floor(col / 3) * 3;
+
                 for (let i = 0; i < 3; i++) {
                     for (let j = 0; j < 3; j++) {
-                        if (sudoku[(boxRow + i) * 9 + (boxCol + j)] === num) {
+                        if (sudokuArray[boxRow + i][boxCol + j] === num) {
                             return false;
                         }
                     }
@@ -197,81 +236,139 @@
                 return true;
             }
 
-            function fillBoard(position) {
-                if (position === 81) {
+            function fillBoard(row, col) {
+                if (col === 9) {
+                    row++;
+                    col = 0;
+                }
+                if (row === 9) {
                     return true;
                 }
 
-                if (sudoku[position] !== 0) {
-                    return fillBoard(position + 1);
+                if (sudokuArray[row][col] !== 0) {
+                    return fillBoard(row, col + 1);
                 }
 
                 nums.sort(() => Math.random() - 0.5);
 
                 for (let num of nums) {
-                    if (isValid(num, position)) {
-                        sudoku[position] = num;
-                        if (fillBoard(position + 1)) {
+                    if (isValid(num, row, col)) {
+                        sudokuArray[row][col] = num;
+                        if (fillBoard(row, col + 1)) {
                             return true;
                         }
-                        sudoku[position] = 0;
+                        sudokuArray[row][col] = 0;
                     }
                 }
-
                 return false;
             }
 
-            fillBoard(0);
-            return sudoku;
+            fillBoard(0, 0);
         }
 
-        function setInitialNumbers() {
-            const fullSudoku = generateSudoku();
+        function removeNumbers(difficulty) {
+            let attempts = difficulty * 81;
+            while (attempts > 0) {
+                const row = Math.floor(Math.random() * 9);
+                const col = Math.floor(Math.random() * 9);
+                if (sudokuArray[row][col] !== 0) {
+                    sudokuArray[row][col] = 0;
+                    attempts--;
+                }
+            }
+        }
 
-            fullSudoku.forEach((num, index) => {
-                if (Math.random() > currentDifficulty) {
-                    board.children[index].textContent = num;
-                    board.children[index].style.fontWeight = 'bold';
+        function displayBoard() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                const row = cell.dataset.row;
+                const col = cell.dataset.col;
+                cell.textContent = sudokuArray[row][col] !== 0 ? sudokuArray[row][col] : '';
+                cell.style.color = sudokuArray[row][col] !== 0 ? '#333' : '';
+                cell.classList.remove('entered');
+            });
+        }
+
+        function checkDuplicates() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.style.color = ''; // Reset color
+            });
+
+            cells.forEach(cell => {
+                const row = cell.dataset.row;
+                const col = cell.dataset.col;
+                const value = parseInt(cell.textContent);
+                if (!value) return;
+                let duplicate = false;
+
+                for (let i = 0; i < 9; i++) {
+                    if ((i !== parseInt(col) && sudokuArray[row][i] === value) || (i !== parseInt(row) && sudokuArray[i][col] === value)) {
+                        duplicate = true;
+                        break;
+                    }
+                }
+
+                const boxRow = Math.floor(row / 3) * 3;
+                const boxCol = Math.floor(col / 3) * 3;
+
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        if ((boxRow + i !== parseInt(row) || boxCol + j !== parseInt(col)) && sudokuArray[boxRow + i][boxCol + j] === value) {
+                            duplicate = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (duplicate) {
+                    cell.style.color = 'red';
+                } else if (cell.classList.contains('entered')) {
+                    cell.style.color = '#2ecc71';
                 }
             });
         }
 
-        function newGame() {
+        function startNewGame() {
             createBoard();
-            setInitialNumbers();
+            generateSudoku();
+            removeNumbers(currentDifficulty);
+            displayBoard();
         }
 
-        function updateDifficultyUI(level) {
-            easyBtn.style.opacity = level === 'easy' ? '1' : '0.5';
-            mediumBtn.style.opacity = level === 'medium' ? '1' : '0.5';
-            hardBtn.style.opacity = level === 'hard' ? '1' : '0.5';
-        }
+        newGameBtn.addEventListener('click', startNewGame);
 
-        function setDifficulty(level) {
-            switch(level) {
-                case 'easy':
-                    currentDifficulty = 0.7;
-                    break;
-                case 'medium':
-                    currentDifficulty = 0.6;
-                    break;
-                case 'hard':
-                    currentDifficulty = 0.5;
-                    break;
-            }
-            updateDifficultyUI(level);
-            newGame();
-        }
+        easyBtn.addEventListener('click', () => {
+            currentDifficulty = 0.4;
+            startNewGame();
+        });
 
-        newGameBtn.addEventListener('click', newGame);
-        easyBtn.addEventListener('click', () => setDifficulty('easy'));
-        mediumBtn.addEventListener('click', () => setDifficulty('medium'));
-        hardBtn.addEventListener('click', () => setDifficulty('hard'));
+        mediumBtn.addEventListener('click', () => {
+            currentDifficulty = 0.6;
+            startNewGame();
+        });
 
-        // Initialize the game
-        updateDifficultyUI('medium');
-        newGame();
+        hardBtn.addEventListener('click', () => {
+            currentDifficulty = 0.8;
+            startNewGame();
+        });
+
+        keys.forEach(key => {
+            key.addEventListener('click', () => {
+                if (selectedCell) {
+                    const row = selectedCell.dataset.row;
+                    const col = selectedCell.dataset.col;
+                    const value = parseInt(key.textContent);
+                    sudokuArray[row][col] = value;
+                    selectedCell.textContent = value;
+                    selectedCell.classList.add('entered');
+                    checkDuplicates();
+                }
+            });
+        });
+
+        startNewGame();
     });
-   </script>
+    </script>
 </body>
 </html>
