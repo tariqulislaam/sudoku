@@ -150,9 +150,45 @@
             font-size: 14px;
             opacity: 0.7;
         }
+
+        .popup {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(52, 152, 219, 0.9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+            font-size: 14px;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        .popup.show {
+            display: block;
+            animation: fadeIn 0.5s, fadeOut 0.5s 4.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
     </style>
 </head>
 <body>
+    <div class="popup" id="mobilePopup">
+        If you're using a mobile device, please switch to desktop mode for a better experience.
+    </div>
+
     <div class="container">
         <div id="sudoku-board"></div>
         <div class="controls">
@@ -292,7 +328,7 @@
         function checkDuplicates() {
             const cells = document.querySelectorAll('.cell');
             cells.forEach(cell => {
-                cell.style.color = ''; // Reset color
+                cell.style.color = '';
             });
 
             cells.forEach(cell => {
@@ -368,6 +404,15 @@
         });
 
         startNewGame();
+
+        // Popup for mobile users
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            const popup = document.getElementById('mobilePopup');
+            popup.classList.add('show');
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 5000);
+        }
     });
     </script>
 </body>
