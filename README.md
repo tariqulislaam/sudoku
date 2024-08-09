@@ -1,5 +1,8 @@
 # Sudoku Game
 
+![Sudoku Game](cover.png)
+
+
 This is a simple implementation of the classic Sudoku game built using HTML, CSS, and JavaScript.
 
 You can play the live demo [here](https://tariqulislaam.github.io/sudoku/).
