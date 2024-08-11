@@ -25,7 +25,7 @@ You can play the live demo [here](https://tariqulislaam.github.io/sudoku/).
 
 ## Credits
 
-- Original game concept and design: Tariqul Islam ([Facebook](https://facebook.com/tariqulislaamrahat))
+- Original game concept and design: ([Tariqul Islam](https://facebook.com/tariqulislaamrahat))
 
 ## Update
 
