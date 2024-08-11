@@ -62,12 +62,12 @@
             transition: all 0.3s ease;
             font-size: 16px;
         }
-        .verify-btn {
+        .verify-btn, .validate-btn {
             background-color: #3498db;
             color: white;
             width: 100%;
         }
-        .verify-btn:hover {
+        .verify-btn:hover, .validate-btn:hover {
             background-color: #2980b9;
         }
         .error-message {
@@ -79,14 +79,6 @@
             font-weight: 700;
             color: #2980b9;
             font-size: 1.1em;
-        }
-        .validate-btn {
-            background-color: #3498db;
-            color: white;
-            width: 100%;
-        }
-        .validate-btn:hover {
-            background-color: #2980b9;
         }
         .resend-btn {
             background-color: transparent;
@@ -121,6 +113,7 @@
 
     <script>
         let currentOTP;
+        let verifiedPhoneNumber;
 
         function validatePhoneNumber(phoneNumber) {
             return phoneNumber.trim() !== "" && /^\d+$/.test(phoneNumber);
@@ -146,6 +139,7 @@
             const errorMessage = document.getElementById('errorMessage');
             
             if (validatePhoneNumber(phoneNumber)) {
+                verifiedPhoneNumber = phoneNumber;
                 showOTPContainer();
             } else {
                 errorMessage.style.display = 'block';
@@ -157,28 +151,23 @@
             const errorMessage = document.getElementById('otpErrorMessage');
             
             if (userInput === currentOTP) {
-                alert("Phone number successfully verified! Redirecting to the game...");
-                setTimeout(() => {
-                    window.location.href = 'sudoku.html';  // Redirect to the Sudoku game
-                }, 2000);  // 2 seconds delay before redirecting
+                const token = btoa(verifiedPhoneNumber + ':' + Date.now());
+                localStorage.setItem('sudokuAccessToken', token);
+                window.location.href = 'sudoku.html?token=' + encodeURIComponent(token);
             } else {
                 errorMessage.style.display = 'block';
             }
         }
 
         document.getElementById('verifyBtn').addEventListener('click', verifyPhoneNumber);
-
         document.getElementById('validateBtn').addEventListener('click', validateOTP);
-
         document.getElementById('resendBtn').addEventListener('click', () => {
             displayOTP();
             document.getElementById('otpErrorMessage').style.display = 'none';
         });
-
         document.getElementById('phoneInput').addEventListener('input', () => {
             document.getElementById('errorMessage').style.display = 'none';
         });
-
         document.getElementById('otpInput').addEventListener('input', () => {
             document.getElementById('otpErrorMessage').style.display = 'none';
         });
